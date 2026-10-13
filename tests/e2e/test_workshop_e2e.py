@@ -25,6 +25,11 @@ def test_user_edits_car_and_change_survives_reload(page, live_server):
     expect(page.get_by_role("heading", name="Honda Civic")).to_be_visible()
 
     page.get_by_role("link", name="Edit car").click()
+    # Wait for the form to finish loading the existing car before typing,
+    # otherwise the async GET can overwrite the newly entered values on slow CI.
+    expect(page.get_by_label("Model", exact=True)).to_have_value("Civic")
+    expect(page.get_by_label("Year", exact=True)).to_have_value("2022")
+    expect(page.get_by_role("button", name="Save changes")).to_be_enabled()
     page.get_by_label("Model", exact=True).fill("Accord")
     page.get_by_label("Year", exact=True).fill("2023")
     page.get_by_role("button", name="Save changes").click()
